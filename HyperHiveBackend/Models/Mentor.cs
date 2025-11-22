@@ -10,6 +10,11 @@ namespace HyperHiveBackend.Models
         public string Department { get; set; } = string.Empty;
         public string? Bio { get; set; }
         public bool IsAvailable { get; set; } = true;
+        
+        // JSON column to store AI-relevant mentor data
+        // This will contain: expertise areas, availability, mentoring style, etc.
+        public string? AIProfileData { get; set; }
+        
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
