@@ -155,6 +155,28 @@ namespace HyperHiveBackend.Controllers
                 return StatusCode(500, new { error = "Failed to retrieve quiz details", details = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Check if a learner has already attempted a specific quiz
+        /// </summary>
+        [HttpGet("{quizId}/attempted/{learnerId}")]
+        public async Task<ActionResult<bool>> HasLearnerAttemptedQuiz(int quizId, int learnerId)
+        {
+            try
+            {
+                _logger.LogInformation("Checking if learner {LearnerId} has attempted quiz {QuizId}", 
+                    learnerId, quizId);
+                
+                var hasAttempted = await _quizService.HasLearnerAttemptedQuizAsync(quizId, learnerId);
+                
+                return Ok(new { hasAttempted = hasAttempted });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking quiz attempt status");
+                return StatusCode(500, new { error = "Failed to check quiz attempt status", details = ex.Message });
+            }
+        }
     }
 }
 

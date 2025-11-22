@@ -14,6 +14,7 @@ namespace HyperHiveBackend.Services
         Task<List<QuizAttemptSummary>> GetLearnerQuizAttemptsAsync(int learnerId);
         Task<LearnerQuizStatistics> GetLearnerQuizStatisticsAsync(int learnerId);
         Task<QuizDetailsResponse> GetQuizDetailsAsync(int quizId);
+        Task<bool> HasLearnerAttemptedQuizAsync(int quizId, int learnerId);
     }
 
     public class QuizService : IQuizService
@@ -109,6 +110,15 @@ namespace HyperHiveBackend.Services
             if (quiz == null)
             {
                 throw new Exception($"Quiz with ID {request.QuizId} not found");
+            }
+
+            // ⭐ CHECK: Has this learner already attempted this quiz?
+            var existingAttempt = await _context.QuizAttempts
+                .FirstOrDefaultAsync(a => a.QuizId == request.QuizId && a.LearnerId == request.LearnerId);
+
+            if (existingAttempt != null)
+            {
+                throw new Exception($"You have already attempted this quiz. Each quiz can only be taken once.");
             }
 
             // Deserialize quiz data to get correct answers
@@ -338,6 +348,12 @@ namespace HyperHiveBackend.Services
                 TotalQuestions = quizQuestions?.Count ?? 0,
                 TimesAttempted = quiz.QuizAttempts.Count
             };
+        }
+
+        public async Task<bool> HasLearnerAttemptedQuizAsync(int quizId, int learnerId)
+        {
+            return await _context.QuizAttempts
+                .AnyAsync(a => a.QuizId == quizId && a.LearnerId == learnerId);
         }
     }
 }

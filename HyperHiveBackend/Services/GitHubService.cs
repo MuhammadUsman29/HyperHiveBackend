@@ -17,6 +17,7 @@ public class GitHubService : IGitHubService
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private readonly ILogger<GitHubService> _logger;
+    private readonly IConfigurationService _configService;
 
     // Technology patterns
     private readonly Dictionary<string, string[]> _technologyPatterns = new()
@@ -102,11 +103,12 @@ public class GitHubService : IGitHubService
         { "Caching", new[] { "IMemoryCache", "Cache", "GetOrCreate", "Set" } }
     };
 
-    public GitHubService(HttpClient httpClient, IConfiguration configuration, ILogger<GitHubService> logger)
+    public GitHubService(HttpClient httpClient, IConfiguration configuration, ILogger<GitHubService> logger, IConfigurationService configService)
     {
         _httpClient = httpClient;
         _configuration = configuration;
         _logger = logger;
+        _configService = configService;
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "HyperHiveBackend/1.0");
     }
 

@@ -1,12 +1,15 @@
 using OpenAI.Chat;
 using System.Text.Json;
 using System.ClientModel;
+using HyperHiveBackend.DTOs;
 
 namespace HyperHiveBackend.Services
 {
     public interface IOpenAIService
     {
         Task<QuizGenerationResult> GenerateQuizAsync(string learnerProfileData, string quizType, int numberOfQuestions);
+        Task<AIValidationResult> GenerateValidationAnalysisAsync(string prompt);
+        Task<AIGrowthPlanResult> GenerateGrowthPlanAsync(string prompt);
     }
 
     public class OpenAIService : IOpenAIService
@@ -147,7 +150,89 @@ CRITICAL: Return ONLY valid JSON in this EXACT format. Do NOT include markdown, 
 
 Generate {numberOfQuestions} questions following this exact structure.";
         }
+
+        public async Task<AIValidationResult> GenerateValidationAnalysisAsync(string prompt)
+        {
+            try
+            {
+                var messages = new List<ChatMessage>
+                {
+                    new SystemChatMessage("You are an expert at analyzing and validating software engineer profiles. Always respond with valid JSON only."),
+                    new UserChatMessage(prompt)
+                };
+
+                var response = await _chatClient.CompleteChatAsync(messages);
+                var content = response.Value.Content[0].Text;
+
+                _logger.LogInformation("OpenAI Validation Response: {Response}", content);
+
+                // Clean the response
+                content = CleanJsonResponse(content);
+
+                // Parse JSON
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    AllowTrailingCommas = true
+                };
+
+                var result = JsonSerializer.Deserialize<AIValidationResult>(content, options);
+
+                if (result == null)
+                {
+                throw new Exception("Failed to parse AI validation response");
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating validation analysis with OpenAI");
+            throw;
+        }
     }
+
+    public async Task<AIGrowthPlanResult> GenerateGrowthPlanAsync(string prompt)
+    {
+        try
+        {
+            var messages = new List<ChatMessage>
+            {
+                new SystemChatMessage("You are an expert career development advisor and learning path designer for software engineers. Always respond with valid JSON only."),
+                new UserChatMessage(prompt)
+            };
+
+            var response = await _chatClient.CompleteChatAsync(messages);
+            var content = response.Value.Content[0].Text;
+
+            _logger.LogInformation("OpenAI Growth Plan Response: {Response}", content);
+
+            // Clean the response
+            content = CleanJsonResponse(content);
+
+            // Parse JSON
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                AllowTrailingCommas = true
+            };
+
+            var result = JsonSerializer.Deserialize<AIGrowthPlanResult>(content, options);
+
+            if (result == null)
+            {
+                throw new Exception("Failed to parse AI growth plan response");
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating growth plan with OpenAI");
+            throw;
+        }
+    }
+}
 
     // Models for OpenAI response
     public class QuizGenerationResult
@@ -163,6 +248,17 @@ Generate {numberOfQuestions} questions following this exact structure.";
         public List<string> Options { get; set; } = new();
         public string CorrectAnswer { get; set; } = string.Empty;
         public string Explanation { get; set; } = string.Empty;
+    }
+
+    // Helper class for AI growth plan result
+    public class AIGrowthPlanResult
+    {
+        public string Overview { get; set; } = string.Empty;
+        public int EstimatedDurationMonths { get; set; }
+        public List<LearningPhase> LearningPhases { get; set; } = new();
+        public List<RecommendedResource> RecommendedResources { get; set; } = new();
+        public List<string> KeyMilestones { get; set; } = new();
+        public string SuccessCriteria { get; set; } = string.Empty;
     }
 }
 

@@ -6,6 +6,9 @@
 # API Keys and Secrets
 keys.txt
 *.env
+appsettings.json
+appsettings.Development.json
+appsettings.*.json
 
 # User-specific files
 *.rsuser

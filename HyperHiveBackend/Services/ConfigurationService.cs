@@ -4,6 +4,8 @@ namespace HyperHiveBackend.Services
     {
         string GetOpenAIApiKey();
         string GetOpenAIBaseUrl();
+        string GetGitHubRepoOwner();
+        string GetGitHubRepoName();
     }
 
     public class ConfigurationService : IConfigurationService
@@ -72,6 +74,26 @@ namespace HyperHiveBackend.Services
             }
 
             return "https://api.openai.com/v1"; // Default OpenAI URL
+        }
+
+        public string GetGitHubRepoOwner()
+        {
+            if (_keys.TryGetValue("GITHUB_REPO_OWNER", out var owner) && !string.IsNullOrWhiteSpace(owner))
+            {
+                return owner;
+            }
+
+            throw new InvalidOperationException("GITHUB_REPO_OWNER not found in keys.txt");
+        }
+
+        public string GetGitHubRepoName()
+        {
+            if (_keys.TryGetValue("GITHUB_REPO_NAME", out var repoName) && !string.IsNullOrWhiteSpace(repoName))
+            {
+                return repoName;
+            }
+
+            throw new InvalidOperationException("GITHUB_REPO_NAME not found in keys.txt");
         }
     }
 }

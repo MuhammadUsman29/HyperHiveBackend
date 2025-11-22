@@ -28,6 +28,9 @@ builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
 builder.Services.AddScoped<ILearnerService, LearnerService>();
 builder.Services.AddScoped<IOpenAIService, OpenAIService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
+builder.Services.AddScoped<IGitHubService, GitHubService>();
+builder.Services.AddScoped<IProfileValidationService, ProfileValidationService>();
+builder.Services.AddScoped<IGrowthPlanService, GrowthPlanService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -85,7 +88,8 @@ builder.Services.AddScoped<IGitHubService>(provider =>
     httpClient.Timeout = TimeSpan.FromMinutes(5);
     var configuration = provider.GetRequiredService<IConfiguration>();
     var logger = provider.GetRequiredService<ILogger<GitHubService>>();
-    return new GitHubService(httpClient, configuration, logger);
+    var configService = provider.GetRequiredService<IConfigurationService>();
+    return new GitHubService(httpClient, configuration, logger, configService);
 });
 
 // Configure JWT Authentication
