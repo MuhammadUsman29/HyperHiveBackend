@@ -10,6 +10,7 @@ namespace HyperHiveBackend.Services
         Task<QuizGenerationResult> GenerateQuizAsync(string learnerProfileData, string quizType, int numberOfQuestions);
         Task<AIValidationResult> GenerateValidationAnalysisAsync(string prompt);
         Task<AIGrowthPlanResult> GenerateGrowthPlanAsync(string prompt);
+        Task<string> GetChatResponseAsync(string userMessage);
     }
 
     public class OpenAIService : IOpenAIService
@@ -230,6 +231,31 @@ Generate {numberOfQuestions} questions following this exact structure.";
         {
             _logger.LogError(ex, "Error generating growth plan with OpenAI");
             throw;
+        }
+    }
+
+    public async Task<string> GetChatResponseAsync(string userMessage)
+    {
+        try
+        {
+            _logger.LogInformation("Processing chat request");
+
+            var messages = new List<ChatMessage>
+            {
+                new SystemChatMessage("You are an AI Career Coach and technical expert for software engineers. Provide concise, helpful answers to technical questions. Keep responses short and focused (2-3 paragraphs max)."),
+                new UserChatMessage(userMessage)
+            };
+
+            var response = await _chatClient.CompleteChatAsync(messages);
+            var content = response.Value.Content[0].Text;
+
+            _logger.LogInformation("Chat response generated successfully");
+            return content;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating chat response");
+            throw new ApplicationException("Failed to generate chat response", ex);
         }
     }
 }
