@@ -47,6 +47,7 @@ public class GitHubController : ControllerBase
             var analysis = await _gitHubService.AnalyzeDeveloperStrongAreasAsync(request);
 
             return Ok(analysis);
+            // ytest
         }
         catch (InvalidOperationException ex)
         {
