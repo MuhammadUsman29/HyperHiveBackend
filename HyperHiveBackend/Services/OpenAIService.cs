@@ -43,24 +43,41 @@ namespace HyperHiveBackend.Services
 
                 var messages = new List<ChatMessage>
                 {
-                    new SystemChatMessage("You are an expert educational content creator specializing in creating personalized quizzes for software engineers. Always respond with valid JSON only."),
+                    new SystemChatMessage("You are an expert educational content creator specializing in creating personalized quizzes for software engineers. Always respond with valid JSON only, no markdown, no extra text."),
                     new UserChatMessage(prompt)
                 };
 
                 var response = await _chatClient.CompleteChatAsync(messages);
                 var content = response.Value.Content[0].Text;
 
-                _logger.LogInformation("OpenAI Response: {Response}", content);
+                _logger.LogInformation("OpenAI Raw Response: {Response}", content);
 
-                // Parse the JSON response
-                var quizResult = JsonSerializer.Deserialize<QuizGenerationResult>(content);
+                // Clean the response - remove markdown code blocks if present
+                content = CleanJsonResponse(content);
+
+                _logger.LogInformation("Cleaned Response: {Response}", content);
+
+                // Parse the JSON response with more lenient options
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    AllowTrailingCommas = true
+                };
+
+                var quizResult = JsonSerializer.Deserialize<QuizGenerationResult>(content, options);
                 
                 if (quizResult == null || quizResult.Questions == null || quizResult.Questions.Count == 0)
                 {
-                    throw new Exception("Failed to parse quiz from OpenAI response");
+                    _logger.LogError("Failed to parse quiz. Response content: {Content}", content);
+                    throw new Exception($"Failed to parse quiz from OpenAI response. Content: {content.Substring(0, Math.Min(200, content.Length))}");
                 }
 
                 return quizResult;
+            }
+            catch (JsonException jsonEx)
+            {
+                _logger.LogError(jsonEx, "JSON parsing error in OpenAI response");
+                throw new Exception($"Failed to parse OpenAI response as JSON: {jsonEx.Message}");
             }
             catch (Exception ex)
             {
@@ -69,35 +86,66 @@ namespace HyperHiveBackend.Services
             }
         }
 
+        private string CleanJsonResponse(string content)
+        {
+            // Remove markdown code blocks if present
+            content = content.Trim();
+            
+            // Remove ```json and ``` markers
+            if (content.StartsWith("```json"))
+            {
+                content = content.Substring(7);
+            }
+            else if (content.StartsWith("```"))
+            {
+                content = content.Substring(3);
+            }
+            
+            if (content.EndsWith("```"))
+            {
+                content = content.Substring(0, content.Length - 3);
+            }
+            
+            return content.Trim();
+        }
+
         private string BuildQuizPrompt(string learnerProfileData, string quizType, int numberOfQuestions)
         {
-            return $@"
-Based on this learner profile:
+            return $@"Based on this learner profile:
 {learnerProfileData}
 
 Generate a {quizType} quiz with {numberOfQuestions} multiple-choice questions to validate their skills and knowledge.
 
 Requirements:
-- Questions should be relevant to their current skill level
-- Each question should have 4 options (A, B, C, D)
-- Include the correct answer
+- Questions should be relevant to their current skill level and interests
+- Each question should have exactly 4 options
+- Include the correct answer (must match exactly one of the options)
 - Provide a brief explanation for the correct answer
 - Make questions practical and scenario-based when possible
 
-Return ONLY valid JSON in this EXACT format (no markdown, no extra text):
+CRITICAL: Return ONLY valid JSON in this EXACT format. Do NOT include markdown, code blocks, or any extra text:
+
 {{
-  ""title"": ""Quiz Title Here"",
+  ""title"": ""C# Skills Assessment"",
   ""questions"": [
     {{
       ""questionId"": 1,
-      ""question"": ""Question text here?"",
-      ""options"": [""Option A"", ""Option B"", ""Option C"", ""Option D""],
-      ""correctAnswer"": ""Option B"",
-      ""explanation"": ""Brief explanation why this is correct""
+      ""question"": ""What is dependency injection?"",
+      ""options"": [""A design pattern for managing dependencies"", ""A type of SQL injection"", ""A testing framework"", ""A compiler optimization""],
+      ""correctAnswer"": ""A design pattern for managing dependencies"",
+      ""explanation"": ""Dependency injection is a design pattern that allows classes to receive their dependencies from external sources rather than creating them internally.""
+    }},
+    {{
+      ""questionId"": 2,
+      ""question"": ""Which keyword is used to define an asynchronous method in C#?"",
+      ""options"": [""async"", ""await"", ""promise"", ""defer""],
+      ""correctAnswer"": ""async"",
+      ""explanation"": ""The async keyword is used to mark a method as asynchronous in C#, allowing the use of await within the method.""
     }}
   ]
 }}
-";
+
+Generate {numberOfQuestions} questions following this exact structure.";
         }
     }
 

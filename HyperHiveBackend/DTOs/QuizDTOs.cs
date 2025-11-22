@@ -62,5 +62,43 @@ namespace HyperHiveBackend.DTOs
         public bool IsCorrect { get; set; }
         public string? Explanation { get; set; }
     }
+
+    // Quiz attempt summary (for history/list)
+    public class QuizAttemptSummary
+    {
+        public int AttemptId { get; set; }
+        public int QuizId { get; set; }
+        public string QuizTitle { get; set; } = string.Empty;
+        public string QuizType { get; set; } = string.Empty;
+        public int Score { get; set; }
+        public int TotalQuestions { get; set; }
+        public decimal Percentage { get; set; }
+        public DateTime CompletedAt { get; set; }
+        public int? TimeTakenSeconds { get; set; }
+    }
+
+    // Learner quiz statistics
+    public class LearnerQuizStatistics
+    {
+        public int LearnerId { get; set; }
+        public int TotalQuizzesTaken { get; set; }
+        public decimal AverageScore { get; set; }
+        public int BestScore { get; set; }
+        public int TotalQuestionsAnswered { get; set; }
+        public int TotalCorrectAnswers { get; set; }
+        public List<QuizAttemptSummary> RecentAttempts { get; set; } = new();
+    }
+
+    // Quiz details (for review)
+    public class QuizDetailsResponse
+    {
+        public int QuizId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string QuizType { get; set; } = string.Empty;
+        public string Difficulty { get; set; } = string.Empty;
+        public DateTime GeneratedAt { get; set; }
+        public int TotalQuestions { get; set; }
+        public int TimesAttempted { get; set; }
+    }
 }
 

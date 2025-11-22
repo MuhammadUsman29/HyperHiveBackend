@@ -59,6 +59,102 @@ namespace HyperHiveBackend.Controllers
                 return StatusCode(500, new { error = "Failed to submit quiz", details = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Get detailed results for a specific quiz attempt
+        /// </summary>
+        [HttpGet("attempt/{attemptId}")]
+        public async Task<ActionResult<SubmitQuizResponse>> GetQuizAttemptResults(int attemptId)
+        {
+            try
+            {
+                _logger.LogInformation("Retrieving results for attempt {AttemptId}", attemptId);
+                
+                var response = await _quizService.GetQuizAttemptResultsAsync(attemptId);
+                
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving quiz attempt results");
+                
+                if (ex.Message.Contains("not found"))
+                {
+                    return NotFound(new { error = ex.Message });
+                }
+                
+                return StatusCode(500, new { error = "Failed to retrieve quiz attempt results", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get all quiz attempts for a specific learner
+        /// </summary>
+        [HttpGet("learner/{learnerId}/attempts")]
+        public async Task<ActionResult<List<QuizAttemptSummary>>> GetLearnerQuizAttempts(int learnerId)
+        {
+            try
+            {
+                _logger.LogInformation("Retrieving quiz attempts for learner {LearnerId}", learnerId);
+                
+                var attempts = await _quizService.GetLearnerQuizAttemptsAsync(learnerId);
+                
+                return Ok(attempts);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving learner quiz attempts");
+                return StatusCode(500, new { error = "Failed to retrieve quiz attempts", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get quiz statistics for a specific learner
+        /// </summary>
+        [HttpGet("learner/{learnerId}/statistics")]
+        public async Task<ActionResult<LearnerQuizStatistics>> GetLearnerQuizStatistics(int learnerId)
+        {
+            try
+            {
+                _logger.LogInformation("Retrieving quiz statistics for learner {LearnerId}", learnerId);
+                
+                var statistics = await _quizService.GetLearnerQuizStatisticsAsync(learnerId);
+                
+                return Ok(statistics);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving learner quiz statistics");
+                return StatusCode(500, new { error = "Failed to retrieve quiz statistics", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get quiz details (metadata only, no questions)
+        /// </summary>
+        [HttpGet("{quizId}")]
+        public async Task<ActionResult<QuizDetailsResponse>> GetQuizDetails(int quizId)
+        {
+            try
+            {
+                _logger.LogInformation("Retrieving quiz details for quiz {QuizId}", quizId);
+                
+                var quizDetails = await _quizService.GetQuizDetailsAsync(quizId);
+                
+                return Ok(quizDetails);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving quiz details");
+                
+                if (ex.Message.Contains("not found"))
+                {
+                    return NotFound(new { error = ex.Message });
+                }
+                
+                return StatusCode(500, new { error = "Failed to retrieve quiz details", details = ex.Message });
+            }
+        }
     }
 }
 
