@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using HyperHiveBackend.Data;
+using HyperHiveBackend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
     )
 );
+
+// Register application services
+builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
+builder.Services.AddScoped<ILearnerService, LearnerService>();
+builder.Services.AddScoped<IOpenAIService, OpenAIService>();
+builder.Services.AddScoped<IQuizService, QuizService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

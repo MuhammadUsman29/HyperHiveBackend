@@ -4,6 +4,7 @@ using HyperHiveBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HyperHiveBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251122094918_InitialCreate2")]
+    partial class InitialCreate2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,130 +176,6 @@ namespace HyperHiveBackend.Migrations
                         .IsUnique();
 
                     b.ToTable("Mentors");
-                });
-
-            modelBuilder.Entity("HyperHiveBackend.Models.Quiz", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Difficulty")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("GeneratedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("LearnerId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("QuizData")
-                        .IsRequired()
-                        .HasColumnType("json");
-
-                    b.Property<string>("QuizType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LearnerId");
-
-                    b.ToTable("Quizzes");
-                });
-
-            modelBuilder.Entity("HyperHiveBackend.Models.QuizAttempt", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("LearnerAnswers")
-                        .IsRequired()
-                        .HasColumnType("json");
-
-                    b.Property<int>("LearnerId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Percentage")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<int>("QuizId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Score")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int?>("TimeTakenSeconds")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalQuestions")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LearnerId");
-
-                    b.HasIndex("QuizId");
-
-                    b.ToTable("QuizAttempts");
-                });
-
-            modelBuilder.Entity("HyperHiveBackend.Models.Quiz", b =>
-                {
-                    b.HasOne("HyperHiveBackend.Models.Learner", "Learner")
-                        .WithMany()
-                        .HasForeignKey("LearnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Learner");
-                });
-
-            modelBuilder.Entity("HyperHiveBackend.Models.QuizAttempt", b =>
-                {
-                    b.HasOne("HyperHiveBackend.Models.Learner", "Learner")
-                        .WithMany()
-                        .HasForeignKey("LearnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("HyperHiveBackend.Models.Quiz", "Quiz")
-                        .WithMany("QuizAttempts")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Learner");
-
-                    b.Navigation("Quiz");
-                });
-
-            modelBuilder.Entity("HyperHiveBackend.Models.Quiz", b =>
-                {
-                    b.Navigation("QuizAttempts");
                 });
 #pragma warning restore 612, 618
         }
