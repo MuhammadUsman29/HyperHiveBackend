@@ -235,28 +235,30 @@ CAREER PROGRESSION RULES:
 - If team lead → focus on: Enterprise Architecture, Vision Setting, Stakeholder Management, Technical Direction
 
 REQUIREMENTS:
-1. Create 3-6 learning phases (each 4-12 weeks)
-2. For each phase include: title, description, skills to cover, practical projects, success metrics
-3. Focus on identified skill gaps (especially: {string.Join(", ", skillGaps.Take(5).Select(g => g.SkillName))})
-4. Recommend SPECIFIC learning resources with:
+1. Create 2-3 learning phases with TOTAL DURATION OF MAXIMUM 6 WEEKS
+2. Each phase should be 2-3 weeks long
+3. For each phase include: title, description, skills to cover, practical projects, success metrics
+4. Focus on identified skill gaps (especially: {string.Join(", ", skillGaps.Take(5).Select(g => g.SkillName))})
+5. Recommend SPECIFIC learning resources with:
    - Real course/book/article names
    - Providers (Udemy, Coursera, Microsoft Learn, Pluralsight, etc.)
    - URLs (use realistic URLs even if approximate)
    - Difficulty level
    - Estimated hours
-5. Include 5-8 key milestones
-6. Define success criteria
+6. Include 3-5 key milestones
+7. Define success criteria
+8. CRITICAL: Total duration must not exceed 6 weeks
 
 Return ONLY valid JSON in this EXACT format:
 {{
   ""overview"": ""Brief overview of the growth plan..."",
-  ""estimatedDurationMonths"": 6,
+  ""estimatedDurationMonths"": 2,
   ""learningPhases"": [
     {{
       ""phaseNumber"": 1,
       ""title"": ""Phase Title"",
       ""description"": ""Phase description..."",
-      ""durationWeeks"": 8,
+      ""durationWeeks"": 2,
       ""skillsToCover"": [""Skill 1"", ""Skill 2""],
       ""learningObjectives"": [""Objective 1"", ""Objective 2""],
       ""practicalProjects"": [""Project 1"", ""Project 2""],
@@ -288,6 +290,14 @@ Return ONLY valid JSON in this EXACT format:
                 _logger.LogInformation("Requesting AI growth plan generation");
                 var aiResult = await _openAIService.GenerateGrowthPlanAsync(prompt);
 
+                // Validate and enforce 6-week limit
+                var totalWeeks = aiResult.LearningPhases.Sum(p => p.DurationWeeks);
+                if (totalWeeks > 6)
+                {
+                    _logger.LogWarning("AI generated plan exceeds 6 weeks ({TotalWeeks} weeks). Adjusting...", totalWeeks);
+                    aiResult = AdjustPlanTo6Weeks(aiResult);
+                }
+
                 // Combine with our data
                 var response = new GrowthPlanResponse
                 {
@@ -317,6 +327,34 @@ Return ONLY valid JSON in this EXACT format:
             }
         }
 
+        private AIGrowthPlanResult AdjustPlanTo6Weeks(AIGrowthPlanResult plan)
+        {
+            var totalWeeks = plan.LearningPhases.Sum(p => p.DurationWeeks);
+            var scaleFactor = 6.0 / totalWeeks;
+
+            // Scale down each phase proportionally
+            foreach (var phase in plan.LearningPhases)
+            {
+                phase.DurationWeeks = Math.Max(1, (int)Math.Round(phase.DurationWeeks * scaleFactor));
+            }
+
+            // Ensure total is exactly 6 weeks
+            var adjustedTotal = plan.LearningPhases.Sum(p => p.DurationWeeks);
+            if (adjustedTotal < 6 && plan.LearningPhases.Any())
+            {
+                plan.LearningPhases.First().DurationWeeks += (6 - adjustedTotal);
+            }
+            else if (adjustedTotal > 6 && plan.LearningPhases.Any())
+            {
+                plan.LearningPhases.Last().DurationWeeks -= (adjustedTotal - 6);
+            }
+
+            // Update estimated duration in months (6 weeks = 1.5 months)
+            plan.EstimatedDurationMonths = 2; // Round up to 2 months
+
+            return plan;
+        }
+
         private GrowthPlanResponse CreateFallbackGrowthPlan(
             Learner learner,
             LearnerAIProfile profile,
@@ -330,8 +368,8 @@ Return ONLY valid JSON in this EXACT format:
                 LearnerName = learner.Name,
                 CurrentLevel = currentLevel,
                 TargetLevel = targetLevel,
-                EstimatedDurationMonths = 6,
-                Overview = $"Structured growth plan to progress from {currentLevel} to {targetLevel} level, focusing on key skill gaps and career development.",
+                EstimatedDurationMonths = 2,
+                Overview = $"Intensive 6-week growth plan to progress from {currentLevel} to {targetLevel} level, focusing on key skill gaps and career development.",
                 SkillGaps = skillGaps,
                 LearningPhases = CreateDefaultPhases(targetLevel, skillGaps),
                 RecommendedResources = CreateDefaultResources(skillGaps),
@@ -351,22 +389,27 @@ Return ONLY valid JSON in this EXACT format:
         private List<LearningPhase> CreateDefaultPhases(string targetLevel, List<SkillGap> skillGaps)
         {
             var phases = new List<LearningPhase>();
-            var skillsPerPhase = Math.Max(2, skillGaps.Count / 3);
+            var numPhases = 3;
+            var weeksPerPhase = 2; // 3 phases × 2 weeks = 6 weeks total
+            var skillsPerPhase = Math.Max(1, skillGaps.Count / numPhases);
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < numPhases; i++)
             {
                 var phaseSkills = skillGaps.Skip(i * skillsPerPhase).Take(skillsPerPhase).Select(g => g.SkillName).ToList();
                 
+                if (!phaseSkills.Any())
+                    break;
+
                 phases.Add(new LearningPhase
                 {
                     PhaseNumber = i + 1,
-                    Title = $"Phase {i + 1}: {GetPhaseTitle(i, targetLevel)}",
-                    Description = $"Focus on developing {string.Join(", ", phaseSkills)}",
-                    DurationWeeks = 8,
+                    Title = $"Week {(i * 2) + 1}-{(i + 1) * 2}: {GetPhaseTitle(i, targetLevel)}",
+                    Description = $"Intensive focus on {string.Join(", ", phaseSkills)}",
+                    DurationWeeks = weeksPerPhase,
                     SkillsToCover = phaseSkills,
-                    LearningObjectives = phaseSkills.Select(s => $"Achieve proficiency in {s}").ToList(),
-                    PracticalProjects = new List<string> { $"Build project demonstrating {phaseSkills.FirstOrDefault()}" },
-                    SuccessMetrics = "Complete all learning objectives and practical projects"
+                    LearningObjectives = phaseSkills.Select(s => $"Gain foundational knowledge in {s}").ToList(),
+                    PracticalProjects = new List<string> { $"Quick project applying {phaseSkills.FirstOrDefault()}" },
+                    SuccessMetrics = "Complete objectives and mini-project"
                 });
             }
 
@@ -377,10 +420,10 @@ Return ONLY valid JSON in this EXACT format:
         {
             return phaseIndex switch
             {
-                0 => "Foundation Building",
-                1 => "Advanced Concepts & Practice",
-                2 => $"Mastery & {targetLevel} Transition",
-                _ => "Continued Learning"
+                0 => "Foundation & Fundamentals",
+                1 => "Core Concepts & Practice",
+                2 => $"Application & {targetLevel} Skills",
+                _ => "Advanced Topics"
             };
         }
 
