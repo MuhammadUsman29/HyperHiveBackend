@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HyperHiveBackend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+34309a852fe085b5e9e227bf0b6a1cfecb8894ad")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+552ecd56fecf81d124a4fe7cddd276e9404e2ad8")]
 [assembly: System.Reflection.AssemblyProductAttribute("HyperHiveBackend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HyperHiveBackend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

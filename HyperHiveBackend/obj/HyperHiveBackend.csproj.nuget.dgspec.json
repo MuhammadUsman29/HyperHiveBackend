@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\AI\\HyperHiveBackend\\HyperHiveBackend\\HyperHiveBackend.csproj": {}
+    "D:\\HyperHiveBackend\\HyperHiveBackend\\HyperHiveBackend.csproj": {}
   },
   "projects": {
-    "D:\\AI\\HyperHiveBackend\\HyperHiveBackend\\HyperHiveBackend.csproj": {
+    "D:\\HyperHiveBackend\\HyperHiveBackend\\HyperHiveBackend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\AI\\HyperHiveBackend\\HyperHiveBackend\\HyperHiveBackend.csproj",
+        "projectUniqueName": "D:\\HyperHiveBackend\\HyperHiveBackend\\HyperHiveBackend.csproj",
         "projectName": "HyperHiveBackend",
-        "projectPath": "D:\\AI\\HyperHiveBackend\\HyperHiveBackend\\HyperHiveBackend.csproj",
-        "packagesPath": "C:\\Users\\ali.r\\.nuget\\packages\\",
-        "outputPath": "D:\\AI\\HyperHiveBackend\\HyperHiveBackend\\obj\\",
+        "projectPath": "D:\\HyperHiveBackend\\HyperHiveBackend\\HyperHiveBackend.csproj",
+        "packagesPath": "C:\\Users\\usman.u\\.nuget\\packages\\",
+        "outputPath": "D:\\HyperHiveBackend\\HyperHiveBackend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -50,21 +50,25 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "BCrypt.Net-Next": {
+            "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[4.0.3, )"
+              "version": "[8.0.22, )"
             },
-            "Dapper": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
-              "version": "[2.1.66, )"
+              "version": "[8.0.11, )"
             },
-            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.11, )"
             },
-            "MySql.Data": {
+            "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
-              "version": "[8.0.31, )"
+              "version": "[8.0.2, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
