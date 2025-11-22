@@ -9,6 +9,11 @@ namespace HyperHiveBackend.Models
         public string Department { get; set; } = string.Empty;
         public DateTime JoinedDate { get; set; }
         public string? Bio { get; set; }
+        
+        // JSON column to store AI-relevant profile data
+        // This will contain: skills, interests, goals, learning preferences, etc.
+        public string? AIProfileData { get; set; }
+        
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }

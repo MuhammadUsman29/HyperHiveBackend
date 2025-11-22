@@ -27,6 +27,10 @@ namespace HyperHiveBackend.Data
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.Property(e => e.Position).HasMaxLength(100);
                 entity.Property(e => e.Department).HasMaxLength(100);
+                
+                // Configure JSON column for AI profile data
+                entity.Property(e => e.AIProfileData)
+                    .HasColumnType("json");
             });
 
             // Configure Mentor entity
@@ -38,6 +42,10 @@ namespace HyperHiveBackend.Data
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.Property(e => e.Specialization).HasMaxLength(100);
                 entity.Property(e => e.Department).HasMaxLength(100);
+                
+                // Configure JSON column for AI profile data
+                entity.Property(e => e.AIProfileData)
+                    .HasColumnType("json");
             });
 
             // Configure Manager entity
@@ -49,6 +57,10 @@ namespace HyperHiveBackend.Data
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.Property(e => e.Department).HasMaxLength(100);
                 entity.Property(e => e.Team).HasMaxLength(100);
+                
+                // Configure JSON column for AI profile data
+                entity.Property(e => e.AIProfileData)
+                    .HasColumnType("json");
             });
         }
     }
