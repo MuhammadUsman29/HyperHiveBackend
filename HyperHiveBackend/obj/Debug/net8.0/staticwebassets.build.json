@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "hyMezvg68jM0XlOUKWfccmc1pmEE9KRRfWuDBrDTq6I=",
+  "Source": "HyperHiveBackend",
+  "BasePath": "_content/HyperHiveBackend",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
